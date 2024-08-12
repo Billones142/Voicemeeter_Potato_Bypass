@@ -4,7 +4,10 @@
 
 #define MODIFYTIMELEFTVARIABLE
 #define MODIFYFUNCTIONCODE
-#define CLOSEMAINWINDOW
+
+#define CLOSEREGISTRATIONWINDOW
+#define CLOSEMAINWINDOW // recomended with system tray enabled
+#define CLOSEDRIVERERRORWINDOW
 
 #define CONSOLELOGS TRUE
 #define FILELOGS TRUE
@@ -185,7 +188,7 @@ int main(int argc, char **argv)
         }
     }
 
-    #ifdef MODIFICARVARIABLE
+    #ifdef MODIFYTIMELEFTVARIABLE
     const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].relativeVariableAddress;
     const BYTE valorCero[4] = {0x0, 0x0, 0x0, 0x0};
 
@@ -199,7 +202,7 @@ int main(int argc, char **argv)
     }
     #endif
 
-    #ifdef MODIFICARFUNCION
+    #ifdef MODIFYFUNCTIONCODE
     const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].relativeFunctionAddress;
     const BYTE newInstruction[10] = {0x41, 0xC7, 0x84, 0x24, 0x68, 0x0A, 0x00, 0x00, 0x00, 0x00};
 
@@ -215,15 +218,22 @@ int main(int argc, char **argv)
 
     CloseHandle(hProcess);
 
-    #ifdef CLOSEWINDOW
-    const char *installation = "Installation Warning...";
-    const char *registerInfo = "About / Registration info...";
-    const char *voicemeeterMain = "Voicemeeter";
-    closeWindow(installation);
-    Sleep(200);
-    closeWindow(registerInfo);
-    closeWindow(voicemeeterMain);
+    #ifdef CLOSEDRIVERERRORWINDOW
+        const char *installation = "Installation Warning...";
+        closeWindow(installation);
     #endif
 
+    #ifdef CLOSEREGISTRATIONWINDOW
+        const char *registerInfo = "About / Registration info...";
+        Sleep(200); // just in case, idk if its needed
+        closeWindow(registerInfo);
+    #endif
+
+    #ifdef CLOSEMAINWINDOW
+        const char *voicemeeterMain = "Voicemeeter";
+        Sleep(100);
+        closeWindow(voicemeeterMain);
+    #endif
+    
     return 0;
 }
