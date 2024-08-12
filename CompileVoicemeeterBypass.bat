@@ -1,0 +1,1 @@
+zig cc -o ".\VoicemeeterBypass.exe" ".\VoicemeeterBypass.c"
