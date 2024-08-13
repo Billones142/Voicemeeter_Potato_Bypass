@@ -3,7 +3,6 @@
 #include <tlhelp32.h>
 #include <stdbool.h>
 
-
 #define MODIFY_TIME_LEFT_VARIABLE
 #define MODIFY_FUNCTION_CODE
 
@@ -22,22 +21,35 @@
 typedef struct VoicemeeterInit
 {
     char *processName;
-    DWORD64 relativeVariableAddress;
-    DWORD64 relativeFunctionAddress;
-    BYTE newInstruction[10];
+    ChangeAdressTo timeVariableRelativeAddress;
+    ChangeAdressTo timeFunctionRelativeAddress;
+    ChangeAdressTo windowVariableRelativeAddress;
+    ChangeAdressTo windowFunctionRelativeAddress;
 } VoicemeeterInit;
+
+typedef struct ChangeAdressTo
+{
+    DWORD64 relativeAddress;
+    BYTE newValue[15]; // 15 just in case its needed
+} ChangeAdressTo;
 
 // variants of voicemeeter
 const VoicemeeterInit initVoicemeeter[] = {
-    {"voicemeeter8.exe", // Voicemeeter Potato x32
-     0x13B518,
-     0x13CEE,
-     {0xC7, 0x87, 0x38, 0x0A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90} /*mov [edi+00000A38],0 nop nop nop*/},
+    {
+        "voicemeeter8.exe", // Voicemeeter Potato x32
+        {0x13B518, {0x0, 0x0, 0x0, 0x0}},
+        {0x13CEE, {0xC7, 0x87, 0x38, 0x0A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90}},
+        {0x0, {0x0}},
+        {0x0, {0x0}},
+    },
 
-    {"voicemeeter8x64.exe", // Voicemeeter Potato x64
-     0x156858,
-     0x10901,
-     {0x41, 0xC7, 0x84, 0x24, 0x68, 0x0A, 0x00, 0x00, 0x00, 0x00} /*mov [r12+00000A68],0*/},
+    {
+        "voicemeeter8x64.exe", // Voicemeeter Potato x64
+        {0x156858, {0x0, 0x0, 0x0, 0x0}},
+        {0x13D2E, {0x41, 0xC7, 0x84, 0x24, 0x68, 0x0A, 0x00, 0x00, 0x00, 0x00}},
+        {0x0, {0x0}},
+        {0x12AD3, {0x41, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x90}},
+    },
 };
 
 int main(int argc, char **argv)
@@ -110,12 +122,12 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MODIFY_TIME_LEFT_VARIABLE
-    const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].relativeVariableAddress;
-    const BYTE valorCero[4] = {0x0, 0x0, 0x0, 0x0};
+    const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeVariableRelativeAddress.relativeAddress;
+    const BYTE changeValueTo[15] = initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue;
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteVariableAddress))
     {
-        if (WriteProcessMemory(hProcess, (LPVOID)absoluteVariableAddress, valorCero, sizeof(valorCero), NULL))
+        if (WriteProcessMemory(hProcess, (LPVOID)absoluteVariableAddress, changeValueTo, sizeof(changeValueTo), NULL))
         {
 #if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
             makelog("Timer value successfully modified.\n");
@@ -138,11 +150,12 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MODIFY_FUNCTION_CODE
-    const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].relativeFunctionAddress;
+    const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeFunctionRelativeAddress.relativeAddress;
+    const BYTE changeFunctionTo[15]= initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue;
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteFunctionAddress))
     {
-        if (WriteProcessMemory(hProcess, (LPVOID)absoluteFunctionAddress, initVoicemeeter[initChoice].newInstruction, sizeof(initVoicemeeter[initChoice].newInstruction), NULL))
+        if (WriteProcessMemory(hProcess, (LPVOID)absoluteFunctionAddress, changeFunctionTo, sizeof(changeFunctionTo), NULL))
         {
 #if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
             makelog("Instruction modified succesfully.\n");
