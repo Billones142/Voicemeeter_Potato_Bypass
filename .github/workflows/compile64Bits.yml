@@ -23,7 +23,7 @@ jobs:
 
       - name: Compile with Zig
         run: |
-          zig cc -o "./VoicemeeterBypass.exe" "./src/VoicemeeterBypass.c"
+          zig cc -Dtarget=x86_64-windows -o "./VoicemeeterBypass.exe" "./src/VoicemeeterBypass.c"
 
       - name: Upload compiled file to repository
         uses: actions/upload-artifact@v3
