@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <Forms>
+    <CETrainer Class="TTrainerForm" Encoding="Ascii85">=Ul:J,c+?4X^j:GX)yfDrn4C!K,xF+MKLcRD^@g(CK4;Am)8HGbP?{uMT4T[rpvxYUZ_[t4,eRMuDdEF%98CieS)1)7I{1j^@a=1@oNO15*Gf/O%hJ;0^D;eh2^Cp:uQCVLJy4o2:a?W([5$RVN3n2XS}icG1LF/-E(isUxLR9!5PJlI_$E]!C8]or]RJ*k,Y*z@DCC8umBLi2Ukl^mUlgxLm@sKM}ye4hQ{!5caDyZkUf.j$MqQFl*j$j0(rM)l$C))]cLMjb2DOPUaf_ITCzCh0EH)Nf!l!;yaHZUM)}T^;i4]Kr-VXgA{8[ucu8_1U$kOB?,WQ+PU;B2,3uz[r1q;C2$=c1A[Y+{f0Iny$UXG}m4t3d$[$t07X_JUTD?lv.1cM#kVlNI;1Dvyz#(t!.Y#ex^@,c/%uL8M/QZ[ShYqAIZ(eDm7[5X}#da}2J+{}*J+=}a-@SiMJD#z1#Nj-DZ)6n0g/J!hf.6Xi!pVBTs*Z}@^i[.XUtc3zO}m.J)0YzqTSX5K5784fF[P:jYHi3:%ynIKpkgO%-6ZsSJ!DPTs;t%/.+Dmv(u:x]QG2VL6sGx-vvtLWc]*Q.0c9i(K,1_td-[PJx/$Sq6%z3hAk#mgdsXU=rK?rRsW6?T5i.fbem)MOzLZ4OxH(0pO+iE.2@{!0y*fOCU^#^kQf_0Ywh{d*l1FUUL(auWBZTE,EZEXg5RDh*0+vur=n^5SK;ELmA8k^h(VVXEjs+vi(ZH2s6A3)^)%O658}JWh1Np:*)ixLg$*J*x-dxcwW+[doQaxaclw57^aTk[eS@+/mOKyMZf_JVeUii@_cu*Ij7grN*zT+X9;}B-s-o%?oOQnB74?QiCXf^vyaU?Su_A-#Q]!058wO[GXuyhPEmm,.Kue33l+Y-;?S2j;XcPy=b.Qq8cWd-bB!JFN7@#yhH*#_DSWD3,7g}@{),rS-cdV^@Wd/XR_=54EOT7vo]CgyPEM1*KA8bT9wiuX[a+qe-[WE]Gu$!6b_^jHPr()9[Ad$Qkli;-6Nm7NZ,TiH/!/M#S0J_2G*-vdN[dj3JX9qVS)v3}!+WBs@ewY*c@cZ7ehcd74b,q/@Dt1a95R[^Vz0R</CETrainer>
+  </Forms>
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1244</ID>
+      <Description>"Clock_64Bits"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048,"voicemeeter8x64.exe"+10901) 
+label(returnhere)
+label(originalcode)
+label(exit)
+
+newmem: //this is allocated memory, you have read,write,execute access
+//place your code here
+
+originalcode:
+//dec [r12+00000A68]
+mov [r12+00000A68],0
+
+exit:
+jmp returnhere
+
+"voicemeeter8x64.exe"+10901:
+jmp newmem
+nop 3
+returnhere:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"voicemeeter8x64.exe"+10901:
+dec [r12+00000A68]
+//Alt: db 41 FF 8C 24 68 0A 00 00
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1245</ID>
+      <Description>"Timer_64Bits"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>voicemeeter8x64.exe+156858</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1246</ID>
+      <Description>"Timer_32Bits"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>voicemeeter8.exe+13B518</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1248</ID>
+      <Description>"Clock_32Bits"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048)
+label(returnhere)
+label(originalcode)
+label(exit)
+
+newmem: //this is allocated memory, you have read,write,execute access
+//place your code here
+
+originalcode:
+//dec [edi+00000A38]
+mov [edi+00000A38],0
+
+exit:
+jmp returnhere
+
+"voicemeeter8.exe"+13CEE:
+jmp newmem
+nop
+returnhere:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"voicemeeter8.exe"+13CEE:
+db FF 8F 38 0A 00 00
+//dec [edi+00000A38]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <CheatCodes>
+    <CodeEntry>
+      <Description>Clock :dec [r12+00000A68]</Description>
+      <AddressString>voicemeeter8x64.exe+10901</AddressString>
+      <Before>
+        <Byte>85</Byte>
+        <Byte>D8</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Before>
+      <Actual>
+        <Byte>41</Byte>
+        <Byte>FF</Byte>
+        <Byte>8C</Byte>
+        <Byte>24</Byte>
+        <Byte>68</Byte>
+        <Byte>0A</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Actual>
+      <After>
+        <Byte>49</Byte>
+        <Byte>8B</Byte>
+        <Byte>CD</Byte>
+        <Byte>FF</Byte>
+        <Byte>15</Byte>
+      </After>
+    </CodeEntry>
+    <CodeEntry>
+      <Description>Timer2:dec [r12+00000A68]</Description>
+      <AddressString>voicemeeter8x64.exe+13D2E</AddressString>
+      <Before>
+        <Byte>85</Byte>
+        <Byte>D8</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Before>
+      <Actual>
+        <Byte>41</Byte>
+        <Byte>FF</Byte>
+        <Byte>8C</Byte>
+        <Byte>24</Byte>
+        <Byte>68</Byte>
+        <Byte>0A</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Actual>
+      <After>
+        <Byte>49</Byte>
+        <Byte>8B</Byte>
+        <Byte>CD</Byte>
+        <Byte>FF</Byte>
+        <Byte>15</Byte>
+      </After>
+    </CodeEntry>
+    <CodeEntry>
+      <Description>timer32bits:dec [edi+00000A38]</Description>
+      <AddressString>voicemeeter8.exe+13CEE</AddressString>
+      <Before>
+        <Byte>85</Byte>
+        <Byte>E1</Byte>
+        <Byte>02</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Before>
+      <Actual>
+        <Byte>FF</Byte>
+        <Byte>8F</Byte>
+        <Byte>38</Byte>
+        <Byte>0A</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Actual>
+      <After>
+        <Byte>56</Byte>
+        <Byte>FF</Byte>
+        <Byte>15</Byte>
+        <Byte>30</Byte>
+        <Byte>E4</Byte>
+      </After>
+    </CodeEntry>
+  </CheatCodes>
+  <UserdefinedSymbols/>
+  <LuaScript>aalist=getAutoAttachList();
+stringlist_add(aalist,"voicemeeter8x64.exe");
+
+sleep(0.5);
+getAddressList().getMemoryRecordByDescription('Clock1').Active = true;
+--getAddressList().getMemoryRecordByDescription('Timer1').Value = 0;
+
+--stringlist_add(aalist,"voicemeeter8x64.exe");
+sleep(0.5);
+getAddressList().getMemoryRecordByDescription('Clock2').Active = true;
+--getAddressList().getMemoryRecordByDescription('Timer2').Value = 0;
+</LuaScript>
+</CheatTable>

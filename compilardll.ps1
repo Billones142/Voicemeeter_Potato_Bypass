@@ -1,1 +1,0 @@
-zig cc -shared -o ".\speedChange.dll" ".\speedChange.dll.c"

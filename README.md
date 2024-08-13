@@ -2,7 +2,7 @@
 
 thank you chat GPT. lol
 
-This code is compiled with Zig, it probably can be compiled with gcc but didnt test it
+This code is compiled with Zig, it probably can be compiled with gcc but didnt test it, the compiled code in the repo is compiled with all enabled
 
 Probably the voicemeeter devs will someday change this so idk how much time will it work, as the name says, its not a crack, its a bypass
 
