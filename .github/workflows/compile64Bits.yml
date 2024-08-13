@@ -1,16 +1,13 @@
-name: Build and Upload VoicemeeterBypass
+name: Build and Release VoicemeeterBypass
 
 on:
   push:
-    branches:
-      - main  # O la rama que prefieras
-  pull_request:
-    branches:
-      - main  # O la rama que prefieras
+    tags:
+      - 'v*'  # Se ejecuta cuando se crea un nuevo tag que sigue el patrón 'v*'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
       - name: Checkout code
@@ -18,36 +15,49 @@ jobs:
 
       - name: Install Zig
         run: |
-          sudo apt-get update
-          sudo snap install zig --classic --beta
+          choco install zig --pre
 
       - name: Compile with Zig
         run: |
-          zig cc -Dtarget=x86_64-windows -o "./VoicemeeterBypass.exe" "./src/VoicemeeterBypass.c"
+          zig cc -o "./VoicemeeterBypass.exe" "./src/VoicemeeterBypass.c"
 
-      - name: Upload compiled file to repository
+      - name: Upload compiled file
         uses: actions/upload-artifact@v3
         with:
           name: VoicemeeterBypass
           path: ./VoicemeeterBypass.exe
 
-  deploy:
+  release:
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Download compiled file
         uses: actions/download-artifact@v3
         with:
           name: VoicemeeterBypass
 
-      - name: Commit and push executable
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./VoicemeeterBypass.exe
-          git commit -m "Add compiled VoicemeeterBypass.exe"
-          git push origin main  # Asegúrate de que esté empujando a la rama correcta
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}  # Utiliza el tag que activó la acción
+          release_name: "Release ${{ github.ref }}"
+          body: "Release de VoicemeeterBypass compilado."
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./VoicemeeterBypass.exe
+          asset_name: VoicemeeterBypass.exe
+          asset_content_type: application/octet-stream
