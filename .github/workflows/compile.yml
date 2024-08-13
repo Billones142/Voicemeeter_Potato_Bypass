@@ -19,7 +19,7 @@ jobs:
       - name: Install Zig
         run: |
           sudo apt-get update
-          snap install zig --classic --beta
+          sudo snap install zig --classic --beta
 
       - name: Compile with Zig
         run: |
