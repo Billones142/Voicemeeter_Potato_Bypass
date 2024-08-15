@@ -17,6 +17,12 @@
 #include "getProcessData.c"
 #include "closeWindow.c"
 
+typedef struct ChangeAdressTo
+{
+    DWORD64 relativeAddress;
+    BYTE newValue[15]; // 15 just in case its needed
+} ChangeAdressTo;
+
 // Struct representing possible addresses for the variable and its modifying function
 typedef struct VoicemeeterInit
 {
@@ -27,11 +33,6 @@ typedef struct VoicemeeterInit
     ChangeAdressTo windowFunctionRelativeAddress;
 } VoicemeeterInit;
 
-typedef struct ChangeAdressTo
-{
-    DWORD64 relativeAddress;
-    BYTE newValue[15]; // 15 just in case its needed
-} ChangeAdressTo;
 
 // variants of voicemeeter
 const VoicemeeterInit initVoicemeeter[] = {
@@ -123,7 +124,8 @@ int main(int argc, char **argv)
 
 #ifdef MODIFY_TIME_LEFT_VARIABLE
     const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeVariableRelativeAddress.relativeAddress;
-    const BYTE changeValueTo[15] = initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue;
+    const BYTE changeValueTo[sizeof(initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue)];
+    memcpy((void *)changeValueTo, initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue, sizeof(changeValueTo));
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteVariableAddress))
     {
@@ -151,7 +153,8 @@ int main(int argc, char **argv)
 
 #ifdef MODIFY_FUNCTION_CODE
     const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeFunctionRelativeAddress.relativeAddress;
-    const BYTE changeFunctionTo[15]= initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue;
+    const BYTE changeFunctionTo[sizeof(initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue)];
+    memcpy((void *)changeFunctionTo, initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue, sizeof(changeFunctionTo));
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteFunctionAddress))
     {
