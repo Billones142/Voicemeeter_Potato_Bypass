@@ -21,7 +21,6 @@ void makelog_default(void);
 // Macro para sobrecargar la función makelog
 #define makelog(...) GET_MACRO(__VA_ARGS__, makelog_bool_char_any, makelog_char_bool, makelog_char)(__VA_ARGS__)
 
-
 // Implementación de la función principal de logging
 void makelog_char_bool(const char *message, bool lineChange)
 {

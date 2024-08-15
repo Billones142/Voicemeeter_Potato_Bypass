@@ -3,19 +3,19 @@
 
 #ifndef VOICEMEETER_VARIANTS
 #define VOICEMEETER_VARIANTS
-typedef struct ChangeAddressTo
+typedef struct AddressTo
 {
     DWORD64 relativeAddress;
     BYTE newValue[15];
-} ChangeAddressTo;
+} AddressTo;
 
 typedef struct VoicemeeterInit
 {
     char *processName;
-    ChangeAddressTo timeVariableRelativeAddress;
-    ChangeAddressTo timeFunctionRelativeAddress;
-    ChangeAddressTo windowVariableRelativeAddress;
-    ChangeAddressTo windowFunctionRelativeAddress;
+    AddressTo timeVariableRelativeAddress;
+    AddressTo timeFunctionRelativeAddress;
+    AddressTo windowVariableRelativeAddress;
+    AddressTo windowFunctionRelativeAddress;
 } VoicemeeterInit;
 
 // list of variants of voicemeeter
@@ -37,7 +37,7 @@ const VoicemeeterInit initVoicemeeter[] = {
     },
 };
 
-bool checkIf_ChangeAdressTo_IsValid(ChangeAddressTo *changeAddressTo)
+bool checkIf_ChangeAdressTo_IsValid(AddressTo *changeAddressTo)
 {
     bool result = false;
 

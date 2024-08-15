@@ -4,19 +4,19 @@
 
 #ifndef VOICEMEETER_VARIANTS_STRUCTURE
 #define VOICEMEETER_VARIANTS_STRUCTURE
-typedef struct ChangeAddressTo
+typedef struct AddressTo
 {
     DWORD64 relativeAddress;
     BYTE newValue[15]; // Quita el `const`
-} ChangeAddressTo;
+} AddressTo;
 
 // Struct representing possible addresses for the variable and its modifying function
 typedef struct VoicemeeterInit
 {
     char *processName;
-    ChangeAddressTo timeVariableRelativeAddress;
-    ChangeAddressTo timeFunctionRelativeAddress;
-    ChangeAddressTo windowVariableRelativeAddress;
-    ChangeAddressTo windowFunctionRelativeAddress;
+    AddressTo timeVariableRelativeAddress;
+    AddressTo timeFunctionRelativeAddress;
+    AddressTo windowVariableRelativeAddress;
+    AddressTo windowFunctionRelativeAddress;
 } VoicemeeterInit;
 #endif

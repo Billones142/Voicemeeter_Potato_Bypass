@@ -25,3 +25,6 @@
 
 // if defined with a string, it will log everything that has done to a file with the name string of the string provided
 #define FILE_LOG_NAME "VoicemeeterBypass.log"
+
+// debug log messages
+// #define DEBUG_LOGS // not yet implemented, at least fully

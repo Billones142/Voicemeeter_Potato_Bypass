@@ -47,7 +47,13 @@ DWORD GetProcessIdByName(const char *processName)
 // Function to wait for a process to start running
 bool findProcess(const char *processName, DWORD *processId)
 {
+#if (defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)) && defined(DEBUG_LOGS)
+  makelog("before searching process\n", true);
+#endif
   *processId = GetProcessIdByName(processName);
+#if (defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)) && defined(DEBUG_LOGS)
+  makelog("after seaching process\n", true);
+#endif
   return (*processId != 0);
 }
 
@@ -98,9 +104,38 @@ typedef struct ProcessData
   char *processName;
   int initChoise;
   DWORD processId;
-  DWORD64 voicemeeterBaseAddress;
+  DWORD64 baseAddress;
   HANDLE hProcess;
 } ProcessData;
+
+void changeAdressTo(AddressTo *adressTo, ProcessData *processData)
+{
+  const DWORD64 absoluteVariableAddress = processData->baseAddress + adressTo->relativeAddress;
+  const BYTE changeValueTo[sizeof(adressTo->newValue)];
+  memcpy((void *)changeValueTo, adressTo->newValue, sizeof(changeValueTo));
+
+  if (IsMemoryAccessible(processData->hProcess, (LPVOID)absoluteVariableAddress))
+  {
+    if (WriteProcessMemory(processData->hProcess, (LPVOID)absoluteVariableAddress, changeValueTo, sizeof(changeValueTo), NULL))
+    {
+#if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
+      makelog("Timer value successfully modified.\n");
+#endif
+    }
+    else
+    {
+#if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
+      makelog("Failed to modify the timer value.\n");
+#endif
+    }
+  }
+  else
+  {
+#if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
+    makelog("Error accesing timer value.\n");
+#endif
+  }
+}
 
 ProcessData *getProcessData(ProcessData *inSearchProcessData) // TODO: dividir el buscador de la variante de voicemeeter
 {
@@ -121,8 +156,8 @@ ProcessData *getProcessData(ProcessData *inSearchProcessData) // TODO: dividir e
     return NULL;
   }
 
-  inSearchProcessData->voicemeeterBaseAddress = GetModuleBaseAddress(inSearchProcessData->processId, inSearchProcessData->processName);
-  if (inSearchProcessData->voicemeeterBaseAddress == 0)
+  inSearchProcessData->baseAddress = GetModuleBaseAddress(inSearchProcessData->processId, inSearchProcessData->processName);
+  if (inSearchProcessData->baseAddress == 0)
   {
 #if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
     makelog("Failed to find the module base address.\n");
@@ -135,7 +170,7 @@ ProcessData *getProcessData(ProcessData *inSearchProcessData) // TODO: dividir e
   return inSearchProcessData;
 }
 
-ProcessData *searchVariant(const VoicemeeterInit (voicemeeterInitProvided)[], size_t voicemeeterInitProvidedArrSize)
+ProcessData *searchVariant(const VoicemeeterInit(voicemeeterInitProvided)[], size_t voicemeeterInitProvidedArrSize)
 {
   ProcessData *inSearchProcessData = (ProcessData *)malloc(sizeof(ProcessData));
   if (inSearchProcessData == NULL)
@@ -147,9 +182,10 @@ ProcessData *searchVariant(const VoicemeeterInit (voicemeeterInitProvided)[], si
     return NULL;
   }
 
+  inSearchProcessData->processName = NULL;
   inSearchProcessData->initChoise = 0;
   inSearchProcessData->processId = 0;
-  inSearchProcessData->voicemeeterBaseAddress = 0;
+  inSearchProcessData->baseAddress = 0;
   inSearchProcessData->hProcess = 0;
 
   UINT32 sleepTime = SLEEPTIME_BETWEN_ATEPMTS_MILISECONDS;
@@ -159,12 +195,15 @@ ProcessData *searchVariant(const VoicemeeterInit (voicemeeterInitProvided)[], si
   for (size_t i = attempts; i >= 0; i--)
   {
 #if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
-    makelog(true, "Waiting for Voicemeeter to start... attempts left: %i\n", attempts);
+    makelog(true, "Waiting for Voicemeeter to start... attempts left: %i\n", i);
 #endif
     for (int i = 0; i < voicemeeterInitProvidedArrSize; i++) // sizeof() gives the size in bytes of a variable
     {
       if (findProcess(voicemeeterInitProvided[i].processName, &(inSearchProcessData->processId)))
       {
+#if (defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)) && defined(DEBUG_LOGS)
+        makelog("Process has been found\n", true);
+#endif
         processHasBeenFound = true;
 
         inSearchProcessData->initChoise = i;
@@ -191,6 +230,17 @@ ProcessData *searchVariant(const VoicemeeterInit (voicemeeterInitProvided)[], si
   }
   else
   {
+#if (defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)) && defined(DEBUG_LOGS)
+    makelog("before asigning string to\n", true);
+#endif
+    size_t nameLength = strlen(voicemeeterInitProvided[inSearchProcessData->initChoise].processName) + 1; // +1 para el carácter nulo
+    inSearchProcessData->processName = (char *)malloc(nameLength);
+
+    snprintf(inSearchProcessData->processName, nameLength, "%s", voicemeeterInitProvided[inSearchProcessData->initChoise].processName);
+#if (defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)) && defined(DEBUG_LOGS)
+    Sleep(1000);
+    makelog("after asigning string to\n", true);
+#endif
     return inSearchProcessData;
   }
 };

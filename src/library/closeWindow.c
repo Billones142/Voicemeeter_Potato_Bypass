@@ -9,7 +9,7 @@ bool closeWindow(const char *windowTitle)
     if (hWnd == NULL)
     {
 #if defined(CONSOLE_LOGS) | defined(FILE_LOG_NAME)
-        makelog(true,"Window (%s) not found.", windowTitle);
+        makelog(true, "Window (%s) not found.", windowTitle);
 #endif
 
         return false;
