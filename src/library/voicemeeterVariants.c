@@ -1,22 +1,10 @@
-#include <windows.h>
-#include <stdbool.h>
 
 #ifndef VOICEMEETER_VARIANTS
 #define VOICEMEETER_VARIANTS
-typedef struct AddressTo
-{
-    DWORD64 relativeAddress;
-    BYTE newValue[15];
-} AddressTo;
+#include <windows.h>
+#include <stdbool.h>
 
-typedef struct VoicemeeterInit
-{
-    char *processName;
-    AddressTo timeVariableRelativeAddress;
-    AddressTo timeFunctionRelativeAddress;
-    AddressTo windowVariableRelativeAddress;
-    AddressTo windowFunctionRelativeAddress;
-} VoicemeeterInit;
+#include "./voicemeeterVariantsStruct.h"
 
 // list of variants of voicemeeter
 const VoicemeeterInit initVoicemeeter[] = {
