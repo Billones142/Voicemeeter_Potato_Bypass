@@ -1,5 +1,9 @@
 .vscode
 *.exe
 *.pdb
+*.lib
 *.dll
 VoicemeeterBypass.log
+
+!MinHook.x64.dll
+!MinHook.x86.dll

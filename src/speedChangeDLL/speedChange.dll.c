@@ -1,12 +1,14 @@
 #include <windows.h>
-#include ".\minhook-master\include\MinHook.h"
+#include "./MinHook_133_bin/include/MinHook.h"
+
+#define SPEED 0.1
 
 typedef DWORD(WINAPI* GetTickCount_t)(void);
 GetTickCount_t fpGetTickCount = NULL;
 
 DWORD WINAPI HookedGetTickCount()
 {
-    return fpGetTickCount() * 0.1; // Reduce la velocidad en un 50%
+    return fpGetTickCount() * SPEED;
 }
 
 int main()
