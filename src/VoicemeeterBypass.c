@@ -1,6 +1,9 @@
 #include <windows.h>
-// #include <tlhelp32.h>
+#include <stdio.h>
 #include "./mainImports.h"
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -26,6 +29,7 @@ int main(int argc, char **argv)
     const char *installation = "Installation Warning...";
     closeWindow(installation);
 #endif
+
 
 #ifdef MODIFY_TIME_LEFT_VARIABLE
     changeAdressTo(&(initVoicemeeter[processData->initChoise].timeVariableRelativeAddress), processData);

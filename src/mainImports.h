@@ -9,3 +9,8 @@
 #if defined(CLOSE_REGISTRATION_WINDOW) | defined(CLOSEMAINWINDOW) | defined(CLOSE_DRIVER_ERROR_WINDOW)
 #include "./library/closeWindow.c"
 #endif
+
+#ifdef CHANGE_SPEED
+#include "./speedChangeDLL/speedChange_x64.h"
+#include "./speedChangeDLL/speedChange_x32.h"
+#endif
