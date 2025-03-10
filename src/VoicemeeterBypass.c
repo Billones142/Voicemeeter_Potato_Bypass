@@ -27,12 +27,11 @@ typedef struct ChangeAdressTo
 typedef struct VoicemeeterInit
 {
     char *processName;
-    ChangeAdressTo timeVariableRelativeAddress;
-    ChangeAdressTo timeFunctionRelativeAddress;
-    ChangeAdressTo windowVariableRelativeAddress;
-    ChangeAdressTo windowFunctionRelativeAddress;
+    ChangeAdressTo timeLeftVariable;
+    ChangeAdressTo timeFunction;
+    ChangeAdressTo windowVariable;
+    ChangeAdressTo windowFunction;
 } VoicemeeterInit;
-
 
 // variants of voicemeeter
 const VoicemeeterInit initVoicemeeter[] = {
@@ -78,7 +77,7 @@ int main(int argc, char **argv)
             {
                 processHasBeenFound = TRUE;
                 initChoice = i;
-                break; // PORQUE?????????????????, si no esta esplosta todo (era por el sizeof lptm, no vi que sacaba la cantidad de bytes y no de elementos en el array), tambien no se porque no se me ocurrio antes...
+                break;
             }
         }
         if (processHasBeenFound == TRUE)
@@ -123,9 +122,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MODIFY_TIME_LEFT_VARIABLE
-    const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeVariableRelativeAddress.relativeAddress;
-    const BYTE changeValueTo[sizeof(initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue)];
-    memcpy((void *)changeValueTo, initVoicemeeter[initChoice].timeVariableRelativeAddress.newValue, sizeof(changeValueTo));
+    const DWORD64 absoluteVariableAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeLeftVariable.relativeAddress;
+    const BYTE changeValueTo[sizeof(initVoicemeeter[initChoice].timeLeftVariable.newValue)];
+    memcpy((void *)changeValueTo, initVoicemeeter[initChoice].timeLeftVariable.newValue, sizeof(changeValueTo));
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteVariableAddress))
     {
@@ -152,9 +151,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef MODIFY_FUNCTION_CODE
-    const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeFunctionRelativeAddress.relativeAddress;
-    const BYTE changeFunctionTo[sizeof(initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue)];
-    memcpy((void *)changeFunctionTo, initVoicemeeter[initChoice].timeFunctionRelativeAddress.newValue, sizeof(changeFunctionTo));
+    const DWORD64 absoluteFunctionAddress = voicemeeterBaseAddress + initVoicemeeter[initChoice].timeFunction.relativeAddress;
+    const BYTE changeFunctionTo[sizeof(initVoicemeeter[initChoice].timeFunction.newValue)];
+    memcpy((void *)changeFunctionTo, initVoicemeeter[initChoice].timeFunction.newValue, sizeof(changeFunctionTo));
 
     if (IsMemoryAccessible(hProcess, (LPVOID)absoluteFunctionAddress))
     {

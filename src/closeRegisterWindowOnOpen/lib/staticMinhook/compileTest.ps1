@@ -1,0 +1,1 @@
+C:/msys64/mingw64/bin/g++ -static ".\prueba.cpp" libminhook.a -I"..\minhook-1.3.3-source\include" -o tuprograma
