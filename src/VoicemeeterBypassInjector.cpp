@@ -2,10 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <time.h>
 #include <tlhelp32.h> // Incluir para enumerar procesos
 
 #define RESOURCE_TYPE RT_RCDATA
-//#define TEMP_DLL_NAME "temp_dll.dll"
+// #define TEMP_DLL_NAME "temp_dll.dll"
 
 bool dllExtractionResult;
 wchar_t tempFileName[MAX_PATH];
@@ -124,36 +125,36 @@ bool ExtractDLLFromResource(const wchar_t *resourceName)
         return false;
     }
 
-    // Generar un nombre de archivo único en la carpeta temporal
-    if (GetTempFileNameW(tempPath, L"temp_dll.dll", 0, tempFileName) == 0)
+    // Generar un nombre aleatorio para el archivo temporal
+    wchar_t randomName[16];
+    srand((unsigned int)time(NULL)); // Inicializar la semilla para rand()
+    for (int i = 0; i < 8; i++)
     {
-        std::cout << "Error al crear nombre de archivo temporal: " << GetLastError() << std::endl;
-        return false;
+        // Generar caracteres alfanuméricos aleatorios
+        int randCharacter = rand() % 36;
+        if (randCharacter < 10)
+            randomName[i] = L'0' + randCharacter; // Dígitos 0-9
+        else
+            randomName[i] = L'a' + (randCharacter - 10); // Letras a-z
     }
+    randomName[8] = L'\0'; // Null-terminar el string
 
-    // Eliminar el archivo creado por GetTempFileName (lo vamos a recrear)
+    // Crear la ruta completa
+    wcscpy(tempFileName, tempPath);
+    wcscat(tempFileName, randomName);
+    wcscat(tempFileName, L".dll");
+
+    // Eliminar archivo si ya existe
     DeleteFileW(tempFileName);
 
-    // Añadir la extensión .dll
-    std::wstring dllPath = tempFileName;
-    if (dllPath.find(L".dll") == std::wstring::npos)
-    {
-        dllPath += L".dll";
-    }
-
-    // Para C++17 y posteriores, puedes usar:
-    // std::filesystem::path path(dllPath);
-    // std::ofstream outFile(path, std::ios::out | std::ios::binary);
-
-    // Para versiones anteriores, convierte la ruta wstring a string:
+    // Convertir la ruta wstring a string para ofstream
     std::string narrowPath;
-    int requiredSize = WideCharToMultiByte(CP_ACP, 0, dllPath.c_str(), -1, NULL, 0, NULL, NULL);
+    int requiredSize = WideCharToMultiByte(CP_ACP, 0, tempFileName, -1, NULL, 0, NULL, NULL);
     if (requiredSize > 0)
     {
         narrowPath.resize(requiredSize);
-        WideCharToMultiByte(CP_ACP, 0, dllPath.c_str(), -1, &narrowPath[0], requiredSize, NULL, NULL);
-        // Eliminar el carácter nulo que WideCharToMultiByte añade al final
-        narrowPath.resize(requiredSize - 1);
+        WideCharToMultiByte(CP_ACP, 0, tempFileName, -1, &narrowPath[0], requiredSize, NULL, NULL);
+        narrowPath.resize(requiredSize - 1); // Remover el null-terminator
     }
     else
     {
@@ -165,16 +166,22 @@ bool ExtractDLLFromResource(const wchar_t *resourceName)
     std::ofstream outFile(narrowPath.c_str(), std::ios::out | std::ios::binary);
     if (!outFile)
     {
-        std::cout << "Error al crear archivo temporal" << std::endl;
+        std::cout << "Error al crear archivo temporal: " << narrowPath << std::endl;
         return false;
     }
 
     outFile.write(static_cast<const char *>(pData), size);
     outFile.close();
 
-    // Guardar la ruta en alguna variable global o estructura para uso posterior
-    // Por ejemplo:
-    // g_tempDllPath = dllPath;
+    // Verificar que el archivo se creó correctamente
+    if (GetFileAttributesW(tempFileName) == INVALID_FILE_ATTRIBUTES)
+    {
+        std::cout << "Error: El archivo DLL no se creó correctamente" << std::endl;
+        std::wcout << L"Ruta del archivo: " << tempFileName << std::endl;
+        return false;
+    }
+
+    std::wcout << L"DLL escrito en: " << tempFileName << std::endl;
 
     return true;
 }
@@ -182,23 +189,26 @@ bool ExtractDLLFromResource(const wchar_t *resourceName)
 bool InjectDLL(DWORD processId)
 {
     // Obtener handle al proceso
-    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processId);
     if (!hProcess)
     {
         std::cout << "Error al abrir el proceso: " << GetLastError() << std::endl;
         return false;
     }
 
-    // Obtener la ruta completa del DLL temporal
-    wchar_t wideDllPath[MAX_PATH];
-    GetFullPathNameW(tempFileName, MAX_PATH, wideDllPath, NULL);
+    // Verificar que el archivo DLL existe
+    if (GetFileAttributesW(tempFileName) == INVALID_FILE_ATTRIBUTES)
+    {
+        std::cout << "Error: El archivo DLL no existe en la ruta: " << std::endl;
+        std::wcout << tempFileName << std::endl;
+        CloseHandle(hProcess);
+        return false;
+    }
 
-    // Convertir la ruta de wchar_t a char para usarla con VirtualAllocEx
-    char dllPath[MAX_PATH];
-    WideCharToMultiByte(CP_ACP, 0, wideDllPath, -1, dllPath, MAX_PATH, NULL, NULL);
-
-    // Asignar memoria en el proceso objetivo para la ruta del DLL
-    void *pRemotePath = VirtualAllocEx(hProcess, NULL, strlen(dllPath) + 1,
+    // Usaremos la ruta Unicode directamente para evitar problemas de codificación
+    // Asignar memoria en el proceso objetivo para la ruta del DLL (en formato UNICODE)
+    SIZE_T dlPathSize = (wcslen(tempFileName) + 1) * sizeof(wchar_t);
+    void *pRemotePath = VirtualAllocEx(hProcess, NULL, dlPathSize,
                                        MEM_COMMIT, PAGE_READWRITE);
     if (!pRemotePath)
     {
@@ -207,8 +217,8 @@ bool InjectDLL(DWORD processId)
         return false;
     }
 
-    // Escribir la ruta del DLL en el proceso objetivo
-    if (!WriteProcessMemory(hProcess, pRemotePath, dllPath, strlen(dllPath) + 1, NULL))
+    // Escribir la ruta UNICODE del DLL en el proceso objetivo
+    if (!WriteProcessMemory(hProcess, pRemotePath, tempFileName, dlPathSize, NULL))
     {
         std::cout << "Error en WriteProcessMemory: " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, pRemotePath, 0, MEM_RELEASE);
@@ -216,9 +226,24 @@ bool InjectDLL(DWORD processId)
         return false;
     }
 
-    // Obtener dirección de LoadLibraryA
+    // Obtener dirección de LoadLibraryW (versión UNICODE de LoadLibrary)
     HMODULE hKernel32 = GetModuleHandleA("kernel32.dll");
-    FARPROC pLoadLibrary = GetProcAddress(hKernel32, "LoadLibraryA");
+    if (!hKernel32)
+    {
+        std::cout << "Error al obtener handle de kernel32.dll: " << GetLastError() << std::endl;
+        VirtualFreeEx(hProcess, pRemotePath, 0, MEM_RELEASE);
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    FARPROC pLoadLibrary = GetProcAddress(hKernel32, "LoadLibraryW");
+    if (!pLoadLibrary)
+    {
+        std::cout << "Error al obtener dirección de LoadLibraryW: " << GetLastError() << std::endl;
+        VirtualFreeEx(hProcess, pRemotePath, 0, MEM_RELEASE);
+        CloseHandle(hProcess);
+        return false;
+    }
 
     // Crear un hilo remoto que cargue el DLL
     HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0,
@@ -226,14 +251,46 @@ bool InjectDLL(DWORD processId)
                                         pRemotePath, 0, NULL);
     if (!hThread)
     {
-        std::cout << "Error en CreateRemoteThread: " << GetLastError() << std::endl;
+        DWORD errorCode = GetLastError();
+        std::cout << "Error en CreateRemoteThread: " << errorCode << std::endl;
+
+        // Información adicional sobre errores comunes
+        if (errorCode == ERROR_ACCESS_DENIED)
+            std::cout << "Acceso denegado. Posiblemente necesites permisos de administrador." << std::endl;
+        else if (errorCode == ERROR_NOT_ENOUGH_MEMORY)
+            std::cout << "No hay suficiente memoria en el proceso objetivo." << std::endl;
+
         VirtualFreeEx(hProcess, pRemotePath, 0, MEM_RELEASE);
         CloseHandle(hProcess);
         return false;
     }
 
-    // Esperar a que termine el hilo
-    WaitForSingleObject(hThread, INFINITE);
+    // Esperar a que termine el hilo con timeout (5 segundos)
+    DWORD waitResult = WaitForSingleObject(hThread, 5000); // 5 segundos de timeout
+
+    if (waitResult == WAIT_TIMEOUT)
+    {
+        // Podemos continuar de todas formas, ya que el DLL podría haberse cargado correctamente
+    }
+    else if (waitResult != WAIT_OBJECT_0)
+    {
+        std::cout << "Error al esperar por el hilo: " << GetLastError() << std::endl;
+    }
+
+    // Obtener el código de salida (handle del DLL o 0 en caso de error)
+    DWORD exitCode = 0;
+    if (!GetExitCodeThread(hThread, &exitCode))
+    {
+        std::cout << "Error al obtener código de salida del hilo: " << GetLastError() << std::endl;
+    }
+    else if (exitCode == 0)
+    {
+        std::cout << "LoadLibraryW falló en el proceso remoto. Código: " << exitCode << std::endl;
+        CloseHandle(hThread);
+        VirtualFreeEx(hProcess, pRemotePath, 0, MEM_RELEASE);
+        CloseHandle(hProcess);
+        return false;
+    }
 
     // Limpiar
     CloseHandle(hThread);
@@ -249,24 +306,36 @@ bool InjectDLL(DWORD processId)
 DWORD getVoicemeeterProcessId()
 {
     DWORD processId;
+#if _WIN64
+    bool found = false;
+#endif
 
     for (size_t i = 0; i < sizeof(voicemeeterVariantsx86); i++)
     {
-        DWORD processId = GetProcessIDByName(voicemeeterVariantsx86[i]);
+        processId = GetProcessIDByName(voicemeeterVariantsx86[i]);
         if (processId != 0)
         {
             dllExtractionResult = ExtractDLLFromResource(L"MYDLLX86");
-            return processId;
+#if _WIN64
+            found = true;
+#endif
+            break;
         }
     }
 #if _WIN64
+    if (found)
+    {
+        return processId;
+    }
+
     for (size_t i = 0; i < sizeof(voicemeeterVariantsx64); i++)
     {
-        DWORD processId = GetProcessIDByName(voicemeeterVariantsx64[i]);
+        processId = GetProcessIDByName(voicemeeterVariantsx64[i]);
         if (processId != 0)
         {
             dllExtractionResult = ExtractDLLFromResource(L"MYDLLX64");
-            return processId;
+            found = true;
+            break;
         }
     }
 #endif
@@ -279,14 +348,18 @@ int main()
 
     if (processId == 0)
     {
-        std::cout << "No se encontro el proceso de voicemeeter" << std::endl;
+        std::cout << "No se encontro el proceso de Voicemeeter" << std::endl;
+        std::cout << "Asegurate de que Voicemeeter este en ejecucion" << std::endl;
         return 1;
     }
+
+    std::cout << "Proceso de Voicemeeter encontrado. PID: " << processId << std::endl;
 
     // Extrae el DLL del recurso
     if (!dllExtractionResult)
     {
         std::cout << "Error al extraer el DLL del recurso" << std::endl;
+        std::cout << "Verifica que los recursos MYDLLX86/MYDLLX64 estén incluidos correctamente en el ejecutable" << std::endl;
         return 1;
     }
 
@@ -298,12 +371,12 @@ int main()
     else
     {
         std::cout << "Error al inyectar el DLL" << std::endl;
+        return 1;
     }
 
-    // Opcional: Eliminar el archivo temporal
-    char ansiFileName[MAX_PATH];
-    WideCharToMultiByte(CP_ACP, 0, tempFileName, -1, ansiFileName, MAX_PATH, NULL, NULL);
-    DeleteFileA(ansiFileName);
+    // Eliminar el archivo temporal
+    DeleteFileW(tempFileName);
+    std::cout << "Archivo temporal eliminado" << std::endl;
 
     return 0;
 }
