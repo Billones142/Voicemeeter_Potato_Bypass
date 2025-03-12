@@ -3,16 +3,18 @@ $originalDirectory = $PWD
 $scriptDirectory = $PSScriptRoot
 
 Set-Location $scriptDirectory
-del "VoicemeeterBypassInjector_x*.exe"
+Remove-Item "VoicemeeterBypassInjector_x*.exe"
 
 .\src\closeRegisterWindowOnOpen\lib\staticMinhook\compileMinhook.ps1
 .\src\closeRegisterWindowOnOpen\compile_closeRegisterWindowOnOpen.dll.ps1
 .\src\resources\compileResources.ps1
 
-cd C:\msys64\mingw64\bin
+# 32 bits
+Set-Location C:\msys64\mingw32\bin
+& .\g++ -m32 -static "$originalDirectory\src\VoicemeeterBypassInjector.cpp" "$originalDirectory\src\resources\resources_x86.o" -o "$originalDirectory\VoicemeeterBypassInjector_x86.exe"
 
-g++ -m32 -static "$originalDirectory\src\VoicemeeterBypassInjector.cpp" "$originalDirectory\src\resources\resources_x86.o" -o "$originalDirectory\VoicemeeterBypassInjector_x86.exe"
+# 64 bits
+Set-Location C:\msys64\mingw64\bin
 & .\g++ -m64 -static "$originalDirectory\src\VoicemeeterBypassInjector.cpp" "$originalDirectory\src\resources\resources_x64.o" -o "$originalDirectory\VoicemeeterBypassInjector_x64.exe"
-#& Remove-Item "VoicemeeterBypass.pdb"
 
 Set-Location $originalDirectory

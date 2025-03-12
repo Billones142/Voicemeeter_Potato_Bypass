@@ -10,6 +10,12 @@
 
 #include "delayedFunction.c"
 
+// #define SPEEDCHANGE
+
+#ifdef SPEEDCHANGE
+#include "speedchange.c" //TODO: not ready
+#endif
+
 #if _WIN64
 #warning compiling closeRegisterWindowOnOpen for 64bits
 #else
@@ -248,7 +254,8 @@ void close_registrationWindow()
     closeWindow(registrationWindowName);
 }
 
-void close_mainWindow(){
+void close_mainWindow()
+{
     closeWindow("Voicemeeter");
 }
 
@@ -267,7 +274,7 @@ HWND WINAPI DetourCreateWindowExA(
     HINSTANCE hInstance,
     LPVOID lpParam)
 {
-    //nonBlocking_Messagebox("Se abrio una ventana","Bypass DetourCreateWindowExA"); // crashes
+    // nonBlocking_Messagebox("Se abrio una ventana","Bypass DetourCreateWindowExA"); // crashes
     if (lpWindowName && strcmp(lpWindowName, "Activate") == 0)
     {
         executeSimpleAfterDelay(close_registrationWindow, 50);
@@ -356,6 +363,7 @@ int main()
 
     closeWindow("Installation Warning...");
     closeWindow(registrationWindowName);
+    executeSimpleAfterDelay(close_mainWindow, 500);
 
     return 0;
 }
@@ -366,10 +374,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     {
     case DLL_PROCESS_ATTACH:
         main();
+#ifdef SPEEDCHANGE
+        initializeSpeedChange();
+        changeSpeed(3000);
+#endif
         break;
     case DLL_PROCESS_DETACH:
         // Liberar recursos
         MH_DisableHook(pCreateWindowExA);
+        // uninitializeSpeedChange();
         MH_Uninitialize();
         break;
     }

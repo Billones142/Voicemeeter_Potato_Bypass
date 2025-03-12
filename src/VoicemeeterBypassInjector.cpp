@@ -5,6 +5,8 @@
 #include <time.h>
 #include <tlhelp32.h> // Incluir para enumerar procesos
 
+// #pragma GCC dependency ""
+
 #define RESOURCE_TYPE RT_RCDATA
 // #define TEMP_DLL_NAME "temp_dll.dll"
 
@@ -58,42 +60,6 @@ DWORD GetProcessIDByName(const std::wstring &processName)
     CloseHandle(hSnapshot);
     return processID;
 }
-
-/*bool ExtractDLLFromResource(const wchar_t *resourceName)
-{
-    // Obtener el handle al recurso
-    HRSRC hRes = FindResourceW(NULL, resourceName, (LPWSTR)RESOURCE_TYPE);
-    if (!hRes)
-    {
-        std::cout << "Error al encontrar el recurso: " << GetLastError() << std::endl;
-        return false;
-    }
-
-    // Cargar el recurso en memoria
-    HGLOBAL hData = LoadResource(NULL, hRes);
-    if (!hData)
-    {
-        std::cout << "Error al cargar el recurso: " << GetLastError() << std::endl;
-        return false;
-    }
-
-    // Obtener puntero a los datos y tamaño
-    DWORD size = SizeofResource(NULL, hRes);
-    void *pData = LockResource(hData);
-
-    // Escribir los datos a un archivo temporal
-    std::ofstream outFile(TEMP_DLL_NAME, std::ios::out | std::ios::binary);
-    if (!outFile)
-    {
-        std::cout << "Error al crear archivo temporal" << std::endl;
-        return false;
-    }
-
-    outFile.write(static_cast<const char *>(pData), size);
-    outFile.close();
-
-    return true;
-}*/
 
 bool ExtractDLLFromResource(const wchar_t *resourceName)
 {
@@ -344,7 +310,24 @@ DWORD getVoicemeeterProcessId()
 
 int main()
 {
-    DWORD processId = getVoicemeeterProcessId();
+    DWORD processId;
+
+    unsigned int sleepTime = 5000; // 5 seconds
+    unsigned char attempts = 24;     // 2 minutes
+
+    while (attempts > 0)
+    {
+        std::cout << "Waiting for Voicemeeter to start... attempts left: " << (int)attempts << std::endl;
+        processId = getVoicemeeterProcessId();
+
+        if (processId != 0)
+        {
+            break;   
+        }
+
+        Sleep(sleepTime); // Wait 5 seconds before trying again
+        attempts--;
+    }
 
     if (processId == 0)
     {
@@ -354,6 +337,8 @@ int main()
     }
 
     std::cout << "Proceso de Voicemeeter encontrado. PID: " << processId << std::endl;
+
+    Sleep(1000); // wait for it to start completely
 
     // Extrae el DLL del recurso
     if (!dllExtractionResult)
