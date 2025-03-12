@@ -1,5 +1,5 @@
 /**
- * This dll is only compatible with the x86 or x64 version of voicemeeter depending on the compiled version, uses preprocesor variables to determine the versions in array voicemeeterVariants
+ * This dll is only compatible with the x86 or x64 version of Voicemeeter depending on the compiled version, uses preprocessor variables to determine the versions in array voicemeeterVariants
  */
 
 #include <stdio.h>
@@ -27,7 +27,7 @@ void *pCreateWindowExA;
 typedef struct ChangeAdressTo
 {
     void *relativeAddress; // address where the newValue will start to be written
-    BYTE newValue[15];     // i dont expect to need more than 15 bytes
+    BYTE newValue[15];     // I don't expect to need more than 15 bytes
     size_t newValueSize;   // amount of bytes that has to be written
 } ChangeAdressTo;
 
@@ -42,7 +42,7 @@ typedef struct VoicemeeterInit
 } VoicemeeterInit;
 
 int voicemeeterVersionIndex = -1;
-// variants of voicemeeter
+// variants of Voicemeeter
 const VoicemeeterInit voicemeeterVariants[] = {
 #if _WIN64
     {
@@ -50,7 +50,7 @@ const VoicemeeterInit voicemeeterVariants[] = {
         {(void *)0x156858, {0x0, 0x0, 0x0, 0x0}, 4},                                     // 1 second
         {(void *)0x13D2E, {0x90, 0xC7, 0x84, 0x24, 0x68, 0x0A, 0x0, 0x0, 0x0, 0x0}, 10}, // automatically sets variable to 0
         {(void *)0x0, {0x0}, 0},                                                         // not implemented
-        {(void *)0x1365B, {0x90, 0x90}, 2},                                              // remplazar la funcion que chequea si se puede cerrar la ventana por nop's
+        {(void *)0x1365B, {0x90, 0x90}, 2},                                              // replace the function that checks if the window can be closed with nops
     },
 #else
     {
@@ -100,36 +100,36 @@ BOOL writeStruct_ChangeAdressTo(const ChangeAdressTo *currentJob)
         return FALSE;
     }
 
-    // Variables para VirtualProtect
+    // Variables for VirtualProtect
     DWORD oldProtect;
     LPVOID absoluteAddress;
     char errorMsg[256];
 
-    // Obtener el handle del módulo de Voicemeeter
-    HMODULE hModule = GetModuleHandle(NULL); // GetModuleHandle(NULL) obtiene el módulo principal
+    // Get the handle of the Voicemeeter module
+    HMODULE hModule = GetModuleHandle(NULL); // GetModuleHandle(NULL) gets the main module
     if (!hModule)
     {
-        sprintf(errorMsg, "No se pudo obtener el handle del módulo. Error: %lu", GetLastError());
+        sprintf(errorMsg, "Could not get the module handle. Error: %lu", GetLastError());
         nonBlocking_Messagebox(errorMsg, "Bypass GetModuleHandle");
         return TRUE;
     }
 
-    // Calcular dirección absoluta sumando el offset a la dirección base del módulo
+    // Calculate absolute address by adding the offset to the base address of the module
     absoluteAddress = (LPVOID)((BYTE *)hModule + (DWORD_PTR)currentJob->relativeAddress);
 
-    // Cambiar permisos de memoria a PAGE_EXECUTE_READWRITE
+    // Change memory permissions to PAGE_EXECUTE_READWRITE
     if (!VirtualProtect(absoluteAddress, currentJob->newValueSize, PAGE_EXECUTE_READWRITE, &oldProtect))
     {
         DWORD errorCode = GetLastError();
-        sprintf(errorMsg, "Error al cambiar protección de memoria. Código: %lu, Dirección: %p, Tamaño: %zu",
+        sprintf(errorMsg, "Error changing memory protection. Code: %lu, Address: %p, Size: %zu",
                 errorCode, absoluteAddress, currentJob->newValueSize);
         nonBlocking_Messagebox(errorMsg, "Bypass VirtualProtect");
-        return TRUE; // Hubo error
+        return TRUE; // There was an error
     }
 
     SIZE_T bytesWritten;
 
-    // Modificar la dirección de memoria
+    // Modify the memory address
     BOOL writeResult = WriteProcessMemory(GetCurrentProcess(),
                                           absoluteAddress,
                                           currentJob->newValue,
@@ -139,16 +139,16 @@ BOOL writeStruct_ChangeAdressTo(const ChangeAdressTo *currentJob)
     if (!writeResult)
     {
         DWORD errorCode = GetLastError();
-        sprintf(errorMsg, "Error al escribir memoria. Código: %lu, Bytes escritos: %zu/%zu",
+        sprintf(errorMsg, "Error writing memory. Code: %lu, Bytes written: %zu/%zu",
                 errorCode, bytesWritten, currentJob->newValueSize);
         nonBlocking_Messagebox(errorMsg, "Bypass WriteProcessMemory");
     }
 
-    // Restaurar la protección original
+    // Restore the original protection
     DWORD dummy;
     VirtualProtect(absoluteAddress, currentJob->newValueSize, oldProtect, &dummy);
 
-    // Verificar si la escritura fue exitosa
+    // Check if the write was successful
     return !writeResult || (bytesWritten < currentJob->newValueSize);
 }
 
@@ -156,7 +156,7 @@ void write_timeLeftVariable()
 {
     if (writeStruct_ChangeAdressTo(&getCurrentVariant()->timeLeftVariable))
     {
-        nonBlocking_Messagebox("Error al modificar la memoria!", "Bypass write_timeLeftVariable");
+        nonBlocking_Messagebox("Error modifying memory!", "Bypass write_timeLeftVariable");
     }
 }
 
@@ -164,7 +164,7 @@ void write_timeFunction()
 {
     if (writeStruct_ChangeAdressTo(&getCurrentVariant()->timeFunction))
     {
-        nonBlocking_Messagebox("Error al modificar la memoria!", "Bypass write_timeFunction");
+        nonBlocking_Messagebox("Error modifying memory!", "Bypass write_timeFunction");
     }
 }
 
@@ -175,7 +175,7 @@ void write_windowFunction()
 {
     if (writeStruct_ChangeAdressTo(&getCurrentVariant()->windowFunction))
     {
-        nonBlocking_Messagebox("Error al modificar la memoria!", "Bypass write_windowFunction");
+        nonBlocking_Messagebox("Error modifying memory!", "Bypass write_windowFunction");
     }
 }
 
@@ -183,7 +183,7 @@ void write_windowVariable()
 {
     if (writeStruct_ChangeAdressTo(&getCurrentVariant()->windowVariable))
     {
-        nonBlocking_Messagebox("Error al modificar la memoria!", "Bypass write_windowVariable");
+        nonBlocking_Messagebox("Error modifying memory!", "Bypass write_windowVariable");
     }
 }
 
@@ -191,33 +191,33 @@ char *getHostProcessFilename()
 {
     static CHAR filePath[MAX_PATH];
     static CHAR filename[MAX_PATH];
-    DWORD procesoPID;
-    DWORD tamano = MAX_PATH;
+    DWORD processPID;
+    DWORD size = MAX_PATH;
 
-    // Inicializar strings
+    // Initialize strings
     filePath[0] = '\0';
     filename[0] = '\0';
 
-    // Obtiene el ID del proceso actual
-    procesoPID = GetCurrentProcessId();
+    // Get the current process ID
+    processPID = GetCurrentProcessId();
 
-    // Abre un handle al proceso con el ID obtenido
-    HANDLE hProceso = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, procesoPID);
+    // Open a handle to the process with the obtained ID
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processPID);
 
-    if (hProceso == NULL)
+    if (hProcess == NULL)
     {
-        return filename; // Retorna string vacío en caso de error
+        return filename; // Return empty string in case of error
     }
 
-    // Obtiene la ruta completa del ejecutable
-    if (GetModuleFileNameEx(hProceso, NULL, filePath, tamano))
+    // Get the full path of the executable
+    if (GetModuleFileNameEx(hProcess, NULL, filePath, size))
     {
-        // Extrae solo el nombre del archivo (sin la ruta)
-        char *ptrNombreSolo = strrchr(filePath, '\\');
-        if (ptrNombreSolo != NULL)
+        // Extract only the filename (without the path)
+        char *ptrOnlyName = strrchr(filePath, '\\');
+        if (ptrOnlyName != NULL)
         {
-            ptrNombreSolo++; // Avanza después de la última barra invertida
-            strcpy(filename, ptrNombreSolo);
+            ptrOnlyName++; // Move past the last backslash
+            strcpy(filename, ptrOnlyName);
         }
         else
         {
@@ -225,12 +225,12 @@ char *getHostProcessFilename()
         }
     }
 
-    CloseHandle(hProceso);
+    CloseHandle(hProcess);
     return filename;
 }
 
-// Definición de la función CreateWindowExA original
-typedef HWND(WINAPI *CreateWindowExA_t)(
+// Definition of the original CreateWindowExA function
+typedef HWND(WINAPI *CreateWindowExA_t)( 
     DWORD dwExStyle,
     LPCSTR lpClassName,
     LPCSTR lpWindowName,
@@ -246,7 +246,7 @@ typedef HWND(WINAPI *CreateWindowExA_t)(
 
 CreateWindowExA_t fpCreateWindowExA = NULL;
 
-// Nombre de la ventana a bloquear
+// Name of the window to block
 const char *registrationWindowName = "About / Registration info...";
 
 void close_registrationWindow()
@@ -259,7 +259,7 @@ void close_mainWindow()
     closeWindow("Voicemeeter");
 }
 
-// Función "detour" que intercepta las llamadas a CreateWindowExA
+// "Detour" function that intercepts calls to CreateWindowExA
 HWND WINAPI DetourCreateWindowExA(
     DWORD dwExStyle,
     LPCSTR lpClassName,
@@ -274,7 +274,7 @@ HWND WINAPI DetourCreateWindowExA(
     HINSTANCE hInstance,
     LPVOID lpParam)
 {
-    // nonBlocking_Messagebox("Se abrio una ventana","Bypass DetourCreateWindowExA"); // crashes
+    // nonBlocking_Messagebox("A window was opened","Bypass DetourCreateWindowExA"); // crashes
     if (lpWindowName && strcmp(lpWindowName, "Activate") == 0)
     {
         executeSimpleAfterDelay(close_registrationWindow, 50);
@@ -302,14 +302,14 @@ int getVersionIndex()
 
 int main()
 {
-    // Inicializa MinHook
+    // Initialize MinHook
     if (MH_Initialize() != MH_OK)
     {
         nonBlocking_Messagebox("Failed to initialize MinHook", "Error");
         return 1;
     }
 
-    // Obtener la dirección real de la función CreateWindowExW
+    // Get the real address of the CreateWindowExW function
     HMODULE hUser32 = GetModuleHandleW(L"user32.dll");
     if (!hUser32)
     {
@@ -326,7 +326,7 @@ int main()
         return 1;
     }
 
-    // Crea un hook para CreateWindowExW
+    // Create a hook for CreateWindowExW
     MH_STATUS status = MH_CreateHook(pCreateWindowExA,
                                      (LPVOID)&DetourCreateWindowExA,
                                      (LPVOID *)&fpCreateWindowExA);
@@ -348,7 +348,7 @@ int main()
         return 1;
     }
 
-    // Habilita el hook
+    // Enable the hook
     status = MH_EnableHook(pCreateWindowExA);
     if (status != MH_OK)
     {
@@ -380,7 +380,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #endif
         break;
     case DLL_PROCESS_DETACH:
-        // Liberar recursos
+        // Release resources
         MH_DisableHook(pCreateWindowExA);
         // uninitializeSpeedChange();
         MH_Uninitialize();
