@@ -110,7 +110,8 @@ bool ExtractDLLFromResource(const wchar_t *resourceName)
 
     // Convert the path from wstring to string for ofstream
     std::string narrowPath;
-    int requiredSize = WideCharToMultiByte(CP_ACP, 0, tempFileName, -1, NULL, 0, NULL, NULL);;
+    int requiredSize = WideCharToMultiByte(CP_ACP, 0, tempFileName, -1, NULL, 0, NULL, NULL);
+    ;
     if (requiredSize > 0)
     {
         narrowPath.resize(requiredSize);
@@ -308,7 +309,7 @@ int main()
     DWORD processId;
 
     unsigned int sleepTime = 5000; // 5 seconds
-    unsigned char attempts = 24;     // 2 minutes
+    unsigned char attempts = 24;   // 2 minutes
 
     while (attempts > 0)
     {
@@ -317,7 +318,7 @@ int main()
 
         if (processId != 0)
         {
-            break;   
+            break;
         }
 
         Sleep(sleepTime); // Wait 5 seconds before trying again

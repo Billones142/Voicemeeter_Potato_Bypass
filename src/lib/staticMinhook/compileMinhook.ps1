@@ -5,9 +5,16 @@ cd $scriptDirectory
 
 Remove-Item "$scriptDirectory\*.a"
 
+if (-not (Test-Path variable:mingw32Dir)) {
+    $mingw32Dir = "C:/msys64/mingw32/bin"
+}
+
+if (-not (Test-Path variable:mingw64Dir)) {
+    $mingw64Dir = "C:/msys64/mingw64/bin"
+}
 
 # 32 bits
-Set-Location C:\msys64\mingw32\bin
+Set-Location $mingw32Dir
 # Compilar los archivos objeto de MinHook x86
 .\g++ -c -m32 "$scriptDirectory/minhook-1.3.3-source/src/hook.c" -o "$scriptDirectory\hook_x86.o"
 & .\g++ -c -m32 "$scriptDirectory/minhook-1.3.3-source/src/buffer.c" -o "$scriptDirectory\buffer_x86.o"
@@ -19,7 +26,7 @@ Set-Location C:\msys64\mingw32\bin
 & .\ranlib "$scriptDirectory\libminhook_x86.a"
 
 # 64 bits
-Set-Location C:\msys64\mingw64\bin
+Set-Location $mingw64Dir
 # Compilar los archivos objeto de MinHook x64
 .\g++.exe -c -m64 "$scriptDirectory/minhook-1.3.3-source/src/hook.c" -o "$scriptDirectory\hook_x64.o"
 & .\g++ -c -m64 "$scriptDirectory/minhook-1.3.3-source/src/buffer.c" -o "$scriptDirectory\buffer_x64.o"

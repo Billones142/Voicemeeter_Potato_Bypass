@@ -1,67 +1,33 @@
 /**
- * This dll is only compatible with the x86 or x64 version of Voicemeeter depending on the compiled version, uses preprocessor variables to determine the versions in array voicemeeterVariants
+ * This dll once compiled is only compatible with the x86 or x64 version of Voicemeeter depending on the compiled version
+ * uses preprocessor variables to determine the versions in array voicemeeterVariants
  */
 
+#include <windows.h>
 #include <stdio.h>
-#include "Windows.h"
-#include "string.h"
+#include <psapi.h>
+#include <string.h>
+
 #include <MinHook.h>
-#include <Psapi.h>
 
 #include "delayedFunction.c"
 
-// #define SPEEDCHANGE
+//#define VMBypass_SPEEDCHANGE //TODO: not ready
 
-#ifdef SPEEDCHANGE
-#include "speedchange.c" //TODO: not ready
+#ifdef VMBypass_SPEEDCHANGE
+#include "speedchange.c"
 #endif
 
-#if _WIN64
-#warning compiling closeRegisterWindowOnOpen for 64bits
-#else
-#warning compiling closeRegisterWindowOnOpen for 32bits
-#endif
+#include "../voicemeeterVersions.c"
+
+//#if _WIN64
+//#warning compiling closeRegisterWindowOnOpen for 64bits
+//#else
+//#warning compiling closeRegisterWindowOnOpen for 32bits
+//#endif
 
 void *pCreateWindowExA;
-
-typedef struct ChangeAdressTo
-{
-    void *relativeAddress; // address where the newValue will start to be written
-    BYTE newValue[15];     // I don't expect to need more than 15 bytes
-    size_t newValueSize;   // amount of bytes that has to be written
-} ChangeAdressTo;
-
-// Struct representing possible addresses for the variable and its modifying function
-typedef struct VoicemeeterInit
-{
-    char *processName;
-    ChangeAdressTo timeLeftVariable; // controls when you can close the registration window
-    ChangeAdressTo timeFunction;     // every second decreases variable by 1
-    ChangeAdressTo windowVariable;   //
-    ChangeAdressTo windowFunction;   // Allows to close the window by ignoring if the time has reached 0
-} VoicemeeterInit;
-
 int voicemeeterVersionIndex = -1;
-// variants of Voicemeeter
-const VoicemeeterInit voicemeeterVariants[] = {
-#if _WIN64
-    {
-        "voicemeeter8x64.exe",                                                           // Voicemeeter Potato x64
-        {(void *)0x156858, {0x0, 0x0, 0x0, 0x0}, 4},                                     // 1 second
-        {(void *)0x13D2E, {0x90, 0xC7, 0x84, 0x24, 0x68, 0x0A, 0x0, 0x0, 0x0, 0x0}, 10}, // automatically sets variable to 0
-        {(void *)0x0, {0x0}, 0},                                                         // not implemented
-        {(void *)0x1365B, {0x90, 0x90}, 2},                                              // replace the function that checks if the window can be closed with nops
-    },
-#else
-    {
-        "voicemeeter8.exe", // Voicemeeter Potato x86
-        {(void *)0x13B518, {0x0, 0x0, 0x0, 0x0}, 4},
-        {(void *)0x13CEE, {0xC7, 0x87, 0x38, 0x0A, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90}, 10},
-        {(void *)0x0, {0x0}, 0}, // not implemented
-        {(void *)0x0, {0x0}, 0}, // not implemented
-    },
-#endif
-};
 
 const VoicemeeterInit *getCurrentVariant()
 {
@@ -96,7 +62,6 @@ BOOL writeStruct_ChangeAdressTo(const ChangeAdressTo *currentJob)
 {
     if (currentJob->newValueSize == 0)
     {
-        nonBlocking_Messagebox("ChangeAdressTo struct not finished", "Bypass writeStruct_ChangeAdressTo");
         return FALSE;
     }
 
@@ -376,7 +341,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         main();
 #ifdef SPEEDCHANGE
         initializeSpeedChange();
-        changeSpeed(3000);
+        //changeSpeed(3000); // test
+        //changeSpeed(0.1); // test
 #endif
         break;
     case DLL_PROCESS_DETACH:
