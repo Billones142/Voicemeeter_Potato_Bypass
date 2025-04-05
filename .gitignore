@@ -1,4 +1,7 @@
 .vscode
 *.exe
 *.pdb
+*.o
+*.a
 VoicemeeterBypass.log
+closeRegisterWindowOnOpen_x*.dll

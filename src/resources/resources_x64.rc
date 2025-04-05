@@ -1,0 +1,2 @@
+MYDLLX86 RCDATA "../closeRegisterWindowOnOpen/closeRegisterWindowOnOpen_x86.dll"
+MYDLLX64 RCDATA "../closeRegisterWindowOnOpen/closeRegisterWindowOnOpen_x64.dll"

@@ -5,59 +5,22 @@
   </Forms>
   <CheatEntries>
     <CheatEntry>
-      <ID>1244</ID>
-      <Description>"Clock_64Bits"</Description>
-      <VariableType>Auto Assembler Script</VariableType>
-      <AssemblerScript>[ENABLE]
-//code from here to '[DISABLE]' will be used to enable the cheat
-alloc(newmem,2048,"voicemeeter8x64.exe"+10901) 
-label(returnhere)
-label(originalcode)
-label(exit)
-
-newmem: //this is allocated memory, you have read,write,execute access
-//place your code here
-
-originalcode:
-//dec [r12+00000A68]
-mov [r12+00000A68],0
-
-exit:
-jmp returnhere
-
-"voicemeeter8x64.exe"+10901:
-jmp newmem
-nop 3
-returnhere:
-
-
- 
- 
-[DISABLE]
-//code from here till the end of the code will be used to disable the cheat
-dealloc(newmem)
-"voicemeeter8x64.exe"+10901:
-dec [r12+00000A68]
-//Alt: db 41 FF 8C 24 68 0A 00 00
-</AssemblerScript>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>1245</ID>
-      <Description>"Timer_64Bits"</Description>
-      <VariableType>4 Bytes</VariableType>
-      <Address>voicemeeter8x64.exe+156858</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>1246</ID>
-      <Description>"Timer_32Bits"</Description>
-      <VariableType>4 Bytes</VariableType>
-      <Address>voicemeeter8.exe+13B518</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>1248</ID>
-      <Description>"Clock_32Bits"</Description>
-      <VariableType>Auto Assembler Script</VariableType>
-      <AssemblerScript>[ENABLE]
+      <ID>1254</ID>
+      <Description>"32Bits"</Description>
+      <Options moHideChildren="1"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>1246</ID>
+          <Description>"Timer_32Bits"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>voicemeeter8.exe+13B518</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>1248</ID>
+          <Description>"Clock_32Bits"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
 //code from here to '[DISABLE]' will be used to enable the cheat
 alloc(newmem,2048)
 label(returnhere)
@@ -89,6 +52,95 @@ dealloc(newmem)
 db FF 8F 38 0A 00 00
 //dec [edi+00000A38]
 </AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1253</ID>
+      <Description>"64Bits"</Description>
+      <Options moHideChildren="1"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>1245</ID>
+          <Description>"Timer_64Bits"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>voicemeeter8x64.exe+156858</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>1249</ID>
+          <Description>"Clock_64Bits"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048,"voicemeeter8x64.exe"+13D2E) 
+label(returnhere)
+label(originalcode)
+label(exit)
+
+newmem: //this is allocated memory, you have read,write,execute access
+//place your code here
+
+originalcode:
+//dec [r12+00000A68]
+mov [r12+00000A68],0
+exit:
+jmp returnhere
+
+"voicemeeter8x64.exe"+13D2E:
+jmp newmem
+nop 3
+returnhere:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"voicemeeter8x64.exe"+13D2E:
+db 41 FF 8C 24 68 0A 00 00
+//dec [r12+00000A68]
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>1244</ID>
+          <Description>"Clock_64Bits0"</Description>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+alloc(newmem,2048,"voicemeeter8x64.exe"+10901) 
+label(returnhere)
+label(originalcode)
+label(exit)
+
+newmem: //this is allocated memory, you have read,write,execute access
+//place your code here
+
+originalcode:
+//dec [r12+00000A68]
+mov [r12+00000A68],0
+
+exit:
+jmp returnhere
+
+"voicemeeter8x64.exe"+10901:
+jmp newmem
+nop 3
+returnhere:
+
+
+ 
+ 
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+dealloc(newmem)
+"voicemeeter8x64.exe"+10901:
+dec [r12+00000A68]
+//Alt: db 41 FF 8C 24 68 0A 00 00
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
     </CheatEntry>
   </CheatEntries>
   <CheatCodes>
@@ -172,6 +224,55 @@ db FF 8F 38 0A 00 00
         <Byte>15</Byte>
         <Byte>30</Byte>
         <Byte>E4</Byte>
+      </After>
+    </CodeEntry>
+    <CodeEntry>
+      <Description>Change of mov r8d,[rsi+00000A68]</Description>
+      <AddressString>voicemeeter8x64.exe+12AD3</AddressString>
+      <Before>
+        <Byte>15</Byte>
+        <Byte>3D</Byte>
+        <Byte>C6</Byte>
+        <Byte>0E</Byte>
+        <Byte>00</Byte>
+      </Before>
+      <Actual>
+        <Byte>44</Byte>
+        <Byte>8B</Byte>
+        <Byte>86</Byte>
+        <Byte>68</Byte>
+        <Byte>0A</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+      </Actual>
+      <After>
+        <Byte>4C</Byte>
+        <Byte>8B</Byte>
+        <Byte>E8</Byte>
+        <Byte>45</Byte>
+        <Byte>85</Byte>
+      </After>
+    </CodeEntry>
+    <CodeEntry>
+      <Description>Change of jnl voicemeeter8x64.exe+13668</Description>
+      <AddressString>voicemeeter8x64.exe+1365B</AddressString>
+      <Before>
+        <Byte>68</Byte>
+        <Byte>0A</Byte>
+        <Byte>00</Byte>
+        <Byte>00</Byte>
+        <Byte>01</Byte>
+      </Before>
+      <Actual>
+        <Byte>7D</Byte>
+        <Byte>0B</Byte>
+      </Actual>
+      <After>
+        <Byte>33</Byte>
+        <Byte>D2</Byte>
+        <Byte>49</Byte>
+        <Byte>8B</Byte>
+        <Byte>CD</Byte>
       </After>
     </CodeEntry>
   </CheatCodes>
