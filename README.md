@@ -1,6 +1,6 @@
 # Voicemeeter Potato Bypass
 
-
+[![Build and Release VoicemeeterBypass](https://github.com/Billones142/Voicemeeter_Potato_Bypass/actions/workflows/compileAndUpload.yml/badge.svg)](https://github.com/Billones142/Voicemeeter_Potato_Bypass/actions/workflows/compileAndUpload.yml)
 
 ## Compiler requirements
 To compile this proyect is required having mingw 32bits and 64bits installed via MSYS2.
