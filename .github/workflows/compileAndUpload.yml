@@ -21,37 +21,9 @@ jobs:
         run: |
           C:\tools\msys64\usr\bin\pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-x86_64-gcc
 
-      - name: Compile MinHook for 32-bit
+      - name: Compile Program for 32-bit and 64-bit
         run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/lib/staticMinhook && ./compileMinhook.ps1"
-
-      - name: Compile MinHook for 64-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/lib/staticMinhook && ./compileMinhook.ps1"
-
-      - name: Compile DLL for 32-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/closeRegisterWindowOnOpen && ./compile_closeRegisterWindowOnOpen.dll.ps1"
-
-      - name: Compile DLL for 64-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/closeRegisterWindowOnOpen && ./compile_closeRegisterWindowOnOpen.dll.ps1"
-
-      - name: Compile Resources for 32-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/resources && ./compileResources.ps1"
-
-      - name: Compile Resources for 64-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "cd ./src/resources && ./compileResources.ps1"
-
-      - name: Compile Main Program for 32-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "i686-w64-mingw32-g++ -m32 -static ./src/VoicemeeterBypassInjector.cpp ./src/resources/resources_x86.o -o ./VoicemeeterBypassInjector_x86.exe"
-
-      - name: Compile Main Program for 64-bit
-        run: |
-          C:\tools\msys64\usr\bin\bash -c "x86_64-w64-mingw32-g++ -m64 -static ./src/VoicemeeterBypassInjector.cpp ./src/resources/resources_x64.o -o ./VoicemeeterBypassInjector_x64.exe"
+        ./CompileVoicemeeterBypassInjector.ps1
 
       - name: Upload compiled files
         uses: actions/upload-artifact@v4
