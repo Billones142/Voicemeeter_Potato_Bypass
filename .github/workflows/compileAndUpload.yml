@@ -45,6 +45,8 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -57,32 +59,11 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: "Release ${{ github.ref }}"
-          body: "Release of VoicemeeterBypass compiled for 32-bit and 64-bit."
+          files: |
+            ./VoicemeeterBypassInjector_x86.exe
+            ./VoicemeeterBypassInjector_x64.exe
+          generate_release_notes: true
           draft: false
           prerelease: false
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./VoicemeeterBypassInjector_x86.exe
-          asset_name: VoicemeeterBypassInjector_x86.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./VoicemeeterBypassInjector_x64.exe
-          asset_name: VoicemeeterBypassInjector_x64.exe
-          asset_content_type: application/octet-stream
