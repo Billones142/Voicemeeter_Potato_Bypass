@@ -23,13 +23,12 @@ jobs:
           C:\tools\msys64\usr\bin\pacman -Syu --noconfirm
           
           # Install MinGW compilers for both 32-bit and 64-bit
-          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed \
-            mingw-w64-i686-gcc \
-            mingw-w64-i686-g++ \
-            mingw-w64-x86_64-gcc \
-            mingw-w64-x86_64-g++ \
-            mingw-w64-i686-binutils \
-            mingw-w64-x86_64-binutils
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-gcc
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-g++
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-gcc
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-g++
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-i686-binutils
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm --needed mingw-w64-x86_64-binutils
 
       - name: Compile Program for 32-bit and 64-bit
         run: |
