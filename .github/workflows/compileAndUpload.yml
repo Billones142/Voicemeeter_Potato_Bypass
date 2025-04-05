@@ -1,0 +1,108 @@
+name: Build and Release VoicemeeterBypass
+
+on:
+  push:
+    tags:
+      - 'v*'  # Runs when a new tag following the pattern 'v*' is created
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install MSYS2
+        run: |
+          choco install msys2 --params "/NoUpdate"
+
+      - name: Install GCC for 32-bit and 64-bit
+        run: |
+          C:\tools\msys64\usr\bin\pacman -S --noconfirm mingw-w64-i686-gcc mingw-w64-x86_64-gcc
+
+      - name: Compile MinHook for 32-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/lib/staticMinhook && ./compileMinhook.ps1"
+
+      - name: Compile MinHook for 64-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/lib/staticMinhook && ./compileMinhook.ps1"
+
+      - name: Compile DLL for 32-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/closeRegisterWindowOnOpen && ./compile_closeRegisterWindowOnOpen.dll.ps1"
+
+      - name: Compile DLL for 64-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/closeRegisterWindowOnOpen && ./compile_closeRegisterWindowOnOpen.dll.ps1"
+
+      - name: Compile Resources for 32-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/resources && ./compileResources.ps1"
+
+      - name: Compile Resources for 64-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "cd ./src/resources && ./compileResources.ps1"
+
+      - name: Compile Main Program for 32-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "i686-w64-mingw32-g++ -m32 -static ./src/VoicemeeterBypassInjector.cpp ./src/resources/resources_x86.o -o ./VoicemeeterBypassInjector_x86.exe"
+
+      - name: Compile Main Program for 64-bit
+        run: |
+          C:\tools\msys64\usr\bin\bash -c "x86_64-w64-mingw32-g++ -m64 -static ./src/VoicemeeterBypassInjector.cpp ./src/resources/resources_x64.o -o ./VoicemeeterBypassInjector_x64.exe"
+
+      - name: Upload compiled files
+        uses: actions/upload-artifact@v3
+        with:
+          name: VoicemeeterBypass
+          path: |
+            ./VoicemeeterBypassInjector_x86.exe
+            ./VoicemeeterBypassInjector_x64.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download compiled files
+        uses: actions/download-artifact@v3
+        with:
+          name: VoicemeeterBypass
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}  # Uses the tag that triggered the action
+          release_name: "Release ${{ github.ref }}"
+          body: "Release of VoicemeeterBypass compiled for 32-bit and 64-bit."
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./VoicemeeterBypassInjector_x86.exe
+          asset_name: VoicemeeterBypassInjector_x86.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./VoicemeeterBypassInjector_x64.exe
+          asset_name: VoicemeeterBypassInjector_x64.exe
+          asset_content_type: application/octet-stream
