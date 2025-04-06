@@ -13,11 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Cache MSYS2 packages
+        uses: actions/cache@v3
+        id: cache-msys2
+        with:
+          path: C:\tools\msys64\var\cache\pacman\pkg
+          key: ${{ runner.os }}-msys2-packages-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-msys2-packages-
+
       - name: Install MSYS2
+        if: steps.cache-msys2.outputs.cache-hit != 'true'
         run: |
           choco install msys2 --params "/NoUpdate"
 
       - name: Update MSYS2 and install MinGW compilers
+        if: steps.cache-msys2.outputs.cache-hit != 'true'
         run: |
           # Update MSYS2 package database
           C:\tools\msys64\usr\bin\pacman -Syu --noconfirm
